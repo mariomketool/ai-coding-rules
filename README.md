@@ -5,6 +5,7 @@ A collection of AI coding guidelines and best practices for various frameworks a
 ## Overview
 
 This project maintains modular AI coding rules that can be combined and deployed to:
+
 - **Cursor IDE** (`.cursorrules` file)
 - **GitHub Copilot** (`.github/copilot-instructions.md`)
 
@@ -30,6 +31,7 @@ Combine multiple rule files into a single deployment:
 ```
 
 This creates:
+
 - `dist/.cursorrules` - For Cursor IDE
 - `dist/.github/copilot-instructions.md` - For GitHub Copilot
 
@@ -38,6 +40,7 @@ This creates:
 ### For Cursor IDE
 
 1. Deploy your desired rules:
+
    ```bash
    ./deploy-rules.sh nextjs
    ```
@@ -50,6 +53,7 @@ This creates:
 ### For GitHub Copilot
 
 1. Deploy your desired rules:
+
    ```bash
    ./deploy-rules.sh python
    ```
@@ -77,6 +81,7 @@ ai-rules/
 ## Adding New Rules
 
 1. Create a new markdown file in the `rules/` directory:
+
    ```bash
    touch rules/react-native.md
    ```
@@ -84,6 +89,7 @@ ai-rules/
 2. Write your coding guidelines in the new file
 
 3. Deploy it:
+
    ```bash
    ./deploy-rules.sh react-native
    ```
@@ -96,6 +102,7 @@ ai-rules/
 ## Deployment Script
 
 The `deploy-rules.sh` script:
+
 - Accepts one or more rule file names (without `.md` extension)
 - Concatenates multiple files with `---` separators
 - Creates both Cursor and GitHub Copilot compatible outputs
@@ -105,6 +112,7 @@ The `deploy-rules.sh` script:
 ### Error Handling
 
 The script will exit with an error if:
+
 - No filename arguments are provided
 - Any specified rule file doesn't exist
 
@@ -119,9 +127,8 @@ To add new rule sets:
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
-[Add your name/organization here]
-
+@mariomketool
