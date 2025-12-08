@@ -105,13 +105,13 @@ export function Link() {
 
 ```typescript
 // src/components/Button/index.tsx
-import type { ButtonProps } from './Button.types';
+import type { ButtonProps } from "./Button.types";
 
-export default function Button({ 
-  children, 
-  variant = 'primary',
+export default function Button({
+  children,
+  variant = "primary",
   onClick,
-  disabled = false 
+  disabled = false,
 }: ButtonProps) {
   return (
     <button
@@ -119,11 +119,12 @@ export default function Button({
       disabled={disabled}
       className={`
         px-4 py-2 rounded-lg font-medium transition-colors
-        ${variant === 'primary' 
-          ? 'bg-blue-600 text-white hover:bg-blue-700' 
-          : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        ${
+          variant === "primary"
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
         }
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
       `}
     >
       {children}
@@ -134,7 +135,7 @@ export default function Button({
 // src/components/Button/Button.types.ts
 export interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary';
+  variant?: "primary" | "secondary";
   onClick?: () => void;
   disabled?: boolean;
 }
@@ -157,13 +158,13 @@ interface UserCardProps {
     avatar?: string;
   };
   onSelect?: (userId: string) => void;
-  variant?: 'compact' | 'detailed';
+  variant?: "compact" | "detailed";
 }
 
-export default function UserCard({ 
-  user, 
-  onSelect, 
-  variant = 'compact' 
+export default function UserCard({
+  user,
+  onSelect,
+  variant = "compact",
 }: UserCardProps) {
   // component logic
 }
@@ -180,11 +181,11 @@ const [user, setUser] = useState<User | null>(null);
 const [isLoading, setIsLoading] = useState<boolean>(false);
 
 // ✅ Good: Using functional updates
-setCount(prev => prev + 1);
+setCount((prev) => prev + 1);
 
 // ❌ Bad: Direct state mutation
 const [items, setItems] = useState<string[]>([]);
-items.push('new'); // DON'T mutate state directly
+items.push("new"); // DON'T mutate state directly
 ```
 
 ### useEffect
@@ -193,7 +194,7 @@ items.push('new'); // DON'T mutate state directly
 // ✅ Good: Clean up side effects
 useEffect(() => {
   const subscription = subscribe();
-  
+
   return () => {
     subscription.unsubscribe();
   };
@@ -210,7 +211,8 @@ useEffect(() => {
 }, []);
 
 // ❌ Bad: Using async directly in useEffect
-useEffect(async () => { // DON'T
+useEffect(async () => {
+  // DON'T
   await fetchData();
 }, []);
 
@@ -220,7 +222,7 @@ useEffect(() => {
     const data = await fetchData();
     setData(data);
   };
-  
+
   loadData();
 }, []);
 ```
@@ -232,7 +234,7 @@ Extract reusable logic into custom hooks:
 ```typescript
 // src/hooks/useLocalStorage/index.ts
 export function useLocalStorage<T>(
-  key: string, 
+  key: string,
   initialValue: T
 ): [T, (value: T) => void] {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -264,10 +266,10 @@ export function useLocalStorage<T>(
 
 ```typescript
 // src/store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import { api } from './api';
-import userReducer from './slices/userSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { api } from "./api";
+import userReducer from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
@@ -288,8 +290,8 @@ export type AppDispatch = typeof store.dispatch;
 
 ```typescript
 // src/store/hooks.ts
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from './index';
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "./index";
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -299,31 +301,34 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 ```typescript
 // src/store/slices/userSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
   currentUser: User | null;
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   preferences: UserPreferences;
 }
 
 const initialState: UserState = {
   currentUser: null,
-  theme: 'light',
+  theme: "light",
   preferences: {},
 };
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
       state.currentUser = action.payload;
     },
-    setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+    setTheme: (state, action: PayloadAction<"light" | "dark">) => {
       state.theme = action.payload;
     },
-    updatePreferences: (state, action: PayloadAction<Partial<UserPreferences>>) => {
+    updatePreferences: (
+      state,
+      action: PayloadAction<Partial<UserPreferences>>
+    ) => {
       state.preferences = { ...state.preferences, ...action.payload };
     },
     clearUser: (state) => {
@@ -332,7 +337,8 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setTheme, updatePreferences, clearUser } = userSlice.actions;
+export const { setUser, setTheme, updatePreferences, clearUser } =
+  userSlice.actions;
 export default userSlice.reducer;
 ```
 
@@ -340,15 +346,15 @@ export default userSlice.reducer;
 
 ```typescript
 // src/components/UserProfile/index.tsx
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { setTheme } from '@/store/slices/userSlice';
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { setTheme } from "@/store/slices/userSlice";
 
 export default function UserProfile() {
   const dispatch = useAppDispatch();
   const { currentUser, theme } = useAppSelector((state) => state.user);
 
   const handleThemeToggle = () => {
-    dispatch(setTheme(theme === 'light' ? 'dark' : 'light'));
+    dispatch(setTheme(theme === "light" ? "dark" : "light"));
   };
 
   if (!currentUser) {
@@ -375,7 +381,7 @@ export default function UserProfile() {
 
 ```typescript
 // src/store/api/index.ts
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface User {
   id: string;
@@ -389,49 +395,49 @@ interface CreateUserRequest {
 }
 
 export const api = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: 'https://api.example.com',
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://api.example.com",
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set("authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
-  tagTypes: ['User', 'Post'],
+  tagTypes: ["User", "Post"],
   endpoints: (builder) => ({
     getUsers: builder.query<User[], void>({
-      query: () => '/users',
-      providesTags: ['User'],
+      query: () => "/users",
+      providesTags: ["User"],
     }),
     getUserById: builder.query<User, string>({
       query: (id) => `/users/${id}`,
-      providesTags: (result, error, id) => [{ type: 'User', id }],
+      providesTags: (result, error, id) => [{ type: "User", id }],
     }),
     createUser: builder.mutation<User, CreateUserRequest>({
       query: (body) => ({
-        url: '/users',
-        method: 'POST',
+        url: "/users",
+        method: "POST",
         body,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
     updateUser: builder.mutation<User, { id: string; data: Partial<User> }>({
       query: ({ id, data }) => ({
         url: `/users/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: "User", id }],
     }),
     deleteUser: builder.mutation<void, string>({
       query: (id) => ({
         url: `/users/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
   }),
 });
@@ -449,7 +455,7 @@ export const {
 
 ```typescript
 // src/components/UserList/index.tsx
-import { useGetUsersQuery, useDeleteUserMutation } from '@/store/api';
+import { useGetUsersQuery, useDeleteUserMutation } from "@/store/api";
 
 export default function UserList() {
   const { data: users, isLoading, error, refetch } = useGetUsersQuery();
@@ -460,7 +466,7 @@ export default function UserList() {
       await deleteUser(userId).unwrap();
       // Success handling
     } catch (error) {
-      console.error('Failed to delete user:', error);
+      console.error("Failed to delete user:", error);
     }
   };
 
@@ -502,7 +508,7 @@ export default function UserList() {
             disabled={isDeleting}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? "Deleting..." : "Delete"}
           </button>
         </div>
       ))}
@@ -539,7 +545,8 @@ const { data } = useGetUserByIdQuery(userId, {
 // ✅ Good: Using Tailwind utilities
 export default function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="
+    <div
+      className="
       bg-white 
       rounded-lg 
       shadow-md 
@@ -549,7 +556,8 @@ export default function Card({ children }: { children: React.ReactNode }) {
       hover:shadow-lg 
       transition-shadow
       duration-200
-    ">
+    "
+    >
       {children}
     </div>
   );
@@ -558,12 +566,14 @@ export default function Card({ children }: { children: React.ReactNode }) {
 // ❌ Bad: Inline styles
 export default function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '24px'
-    }}>
+    <div
+      style={{
+        backgroundColor: "white",
+        borderRadius: "8px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        padding: "24px",
+      }}
+    >
       {children}
     </div>
   );
@@ -575,7 +585,8 @@ export default function Card({ children }: { children: React.ReactNode }) {
 ```typescript
 export default function ResponsiveGrid() {
   return (
-    <div className="
+    <div
+      className="
       grid 
       grid-cols-1 
       sm:grid-cols-2 
@@ -583,7 +594,8 @@ export default function ResponsiveGrid() {
       lg:grid-cols-4 
       gap-4 
       p-4
-    ">
+    "
+    >
       {/* Grid items */}
     </div>
   );
@@ -595,28 +607,36 @@ export default function ResponsiveGrid() {
 ```typescript
 // ✅ Good: Using template literals for conditional classes
 interface ButtonProps {
-  variant: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
 }
 
-export default function Button({ 
-  variant, 
-  size = 'md', 
-  disabled = false 
+export default function Button({
+  variant,
+  size = "md",
+  disabled = false,
 }: ButtonProps) {
   return (
     <button
       disabled={disabled}
       className={`
         font-medium rounded transition-colors
-        ${size === 'sm' ? 'px-3 py-1 text-sm' : ''}
-        ${size === 'md' ? 'px-4 py-2 text-base' : ''}
-        ${size === 'lg' ? 'px-6 py-3 text-lg' : ''}
-        ${variant === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
-        ${variant === 'secondary' ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : ''}
-        ${variant === 'danger' ? 'bg-red-600 text-white hover:bg-red-700' : ''}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+        ${size === "sm" ? "px-3 py-1 text-sm" : ""}
+        ${size === "md" ? "px-4 py-2 text-base" : ""}
+        ${size === "lg" ? "px-6 py-3 text-lg" : ""}
+        ${
+          variant === "primary"
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : ""
+        }
+        ${
+          variant === "secondary"
+            ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            : ""
+        }
+        ${variant === "danger" ? "bg-red-600 text-white hover:bg-red-700" : ""}
+        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
       `}
     >
       Click me
@@ -625,24 +645,25 @@ export default function Button({
 }
 
 // Alternative: Using a utility library like clsx or classnames
-import clsx from 'clsx';
+import clsx from "clsx";
 
-export default function Button({ variant, size = 'md', disabled = false }: ButtonProps) {
+export default function Button({
+  variant,
+  size = "md",
+  disabled = false,
+}: ButtonProps) {
   return (
     <button
       disabled={disabled}
-      className={clsx(
-        'font-medium rounded transition-colors',
-        {
-          'px-3 py-1 text-sm': size === 'sm',
-          'px-4 py-2 text-base': size === 'md',
-          'px-6 py-3 text-lg': size === 'lg',
-          'bg-blue-600 text-white hover:bg-blue-700': variant === 'primary',
-          'bg-gray-200 text-gray-800 hover:bg-gray-300': variant === 'secondary',
-          'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
-          'opacity-50 cursor-not-allowed': disabled,
-        }
-      )}
+      className={clsx("font-medium rounded transition-colors", {
+        "px-3 py-1 text-sm": size === "sm",
+        "px-4 py-2 text-base": size === "md",
+        "px-6 py-3 text-lg": size === "lg",
+        "bg-blue-600 text-white hover:bg-blue-700": variant === "primary",
+        "bg-gray-200 text-gray-800 hover:bg-gray-300": variant === "secondary",
+        "bg-red-600 text-white hover:bg-red-700": variant === "danger",
+        "opacity-50 cursor-not-allowed": disabled,
+      })}
     >
       Click me
     </button>
@@ -701,25 +722,25 @@ Organize imports in this order:
 
 ```typescript
 // 1. React and external libraries
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // 2. Redux/RTK Query
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { useGetUsersQuery } from '@/store/api';
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useGetUsersQuery } from "@/store/api";
 
 // 3. Components
-import Button from '@/components/Button';
-import Modal from '@/components/Modal';
+import Button from "@/components/Button";
+import Modal from "@/components/Modal";
 
 // 4. Hooks
-import { useDebounce } from '@/hooks/useDebounce';
+import { useDebounce } from "@/hooks/useDebounce";
 
 // 5. Utils and helpers
-import { formatDate } from '@/utils/formatDate';
+import { formatDate } from "@/utils/formatDate";
 
 // 6. Types
-import type { User } from '@/types/user';
+import type { User } from "@/types/user";
 ```
 
 ## Error Handling
@@ -728,7 +749,7 @@ import type { User } from '@/types/user';
 
 ```typescript
 // src/components/ErrorBoundary/index.tsx
-import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -751,28 +772,30 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="p-8 bg-white rounded-lg shadow-md max-w-md">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">
-              Something went wrong
-            </h2>
-            <p className="text-gray-700 mb-4">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <button
-              onClick={() => this.setState({ hasError: false })}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Try again
-            </button>
+      return (
+        this.props.fallback || (
+          <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="p-8 bg-white rounded-lg shadow-md max-w-md">
+              <h2 className="text-2xl font-bold text-red-600 mb-4">
+                Something went wrong
+              </h2>
+              <p className="text-gray-700 mb-4">
+                {this.state.error?.message || "An unexpected error occurred"}
+              </p>
+              <button
+                onClick={() => this.setState({ hasError: false })}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Try again
+              </button>
+            </div>
           </div>
-        </div>
+        )
       );
     }
 
@@ -793,19 +816,19 @@ export default function DataFetcher() {
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch('/api/data');
-      
+      const response = await fetch("/api/data");
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Failed to fetch data:', err);
+      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error("Failed to fetch data:", err);
     } finally {
       setIsLoading(false);
     }
@@ -830,16 +853,16 @@ export default function DataFetcher() {
 
 ```typescript
 // ✅ Good: Memoize expensive components
-import { memo } from 'react';
+import { memo } from "react";
 
 interface ExpensiveComponentProps {
   data: ComplexData[];
   onItemClick: (id: string) => void;
 }
 
-const ExpensiveComponent = memo(function ExpensiveComponent({ 
-  data, 
-  onItemClick 
+const ExpensiveComponent = memo(function ExpensiveComponent({
+  data,
+  onItemClick,
 }: ExpensiveComponentProps) {
   return (
     <div>
@@ -858,7 +881,7 @@ export default ExpensiveComponent;
 ### useMemo and useCallback
 
 ```typescript
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback } from "react";
 
 export default function OptimizedComponent({ items }: { items: Item[] }) {
   // Memoize expensive calculations
@@ -868,7 +891,7 @@ export default function OptimizedComponent({ items }: { items: Item[] }) {
 
   // Memoize callbacks to prevent unnecessary re-renders
   const handleItemClick = useCallback((id: string) => {
-    console.log('Clicked item:', id);
+    console.log("Clicked item:", id);
   }, []);
 
   return (
@@ -886,14 +909,14 @@ export default function OptimizedComponent({ items }: { items: Item[] }) {
 ### Lazy Loading
 
 ```typescript
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 
 // Lazy load heavy components
-const HeavyComponent = lazy(() => import('@/components/HeavyComponent'));
+const HeavyComponent = lazy(() => import("@/components/HeavyComponent"));
 
 export default function App() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className="flex items-center justify-center p-8">
           <div className="text-gray-600">Loading...</div>
@@ -962,12 +985,12 @@ export default function AccessibleButton() {
       >
         Toggle Content
       </button>
-      
+
       <div
         id="content-section"
         role="region"
         aria-hidden={!isExpanded}
-        className={isExpanded ? 'block' : 'hidden'}
+        className={isExpanded ? "block" : "hidden"}
       >
         Content here
       </div>
@@ -981,7 +1004,7 @@ export default function AccessibleButton() {
 ```typescript
 export default function KeyboardAccessible() {
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       // Handle action
     }
@@ -992,7 +1015,9 @@ export default function KeyboardAccessible() {
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onClick={() => {/* Handle click */}}
+      onClick={() => {
+        /* Handle click */
+      }}
       className="cursor-pointer p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
       Click or press Enter/Space
@@ -1007,26 +1032,26 @@ export default function KeyboardAccessible() {
 
 ```typescript
 // src/components/Button/Button.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import Button from './index';
+import { render, screen, fireEvent } from "@testing-library/react";
+import Button from "./index";
 
-describe('Button', () => {
-  it('renders with children', () => {
+describe("Button", () => {
+  it("renders with children", () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByText('Click me')).toBeInTheDocument();
+    expect(screen.getByText("Click me")).toBeInTheDocument();
   });
 
-  it('calls onClick when clicked', () => {
+  it("calls onClick when clicked", () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
-    fireEvent.click(screen.getByText('Click me'));
+
+    fireEvent.click(screen.getByText("Click me"));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('is disabled when disabled prop is true', () => {
+  it("is disabled when disabled prop is true", () => {
     render(<Button disabled>Click me</Button>);
-    expect(screen.getByText('Click me')).toBeDisabled();
+    expect(screen.getByText("Click me")).toBeDisabled();
   });
 });
 ```
@@ -1034,17 +1059,17 @@ describe('Button', () => {
 ### Testing with RTK Query
 
 ```typescript
-import { renderHook, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { store } from '@/store';
-import { useGetUsersQuery } from '@/store/api';
+import { renderHook, waitFor } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { store } from "@/store";
+import { useGetUsersQuery } from "@/store/api";
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <Provider store={store}>{children}</Provider>
 );
 
-describe('useGetUsersQuery', () => {
-  it('fetches users successfully', async () => {
+describe("useGetUsersQuery", () => {
+  it("fetches users successfully", async () => {
     const { result } = renderHook(() => useGetUsersQuery(), { wrapper });
 
     await waitFor(() => {
@@ -1094,7 +1119,7 @@ describe('useGetUsersQuery', () => {
 
 ```typescript
 // ✅ Good: Using environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // In .env file:
 // VITE_API_URL=https://api.production.com
@@ -1105,16 +1130,16 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 ```typescript
 // src/constants/index.ts
 export const API_ENDPOINTS = {
-  USERS: '/users',
-  POSTS: '/posts',
-  COMMENTS: '/comments',
+  USERS: "/users",
+  POSTS: "/posts",
+  COMMENTS: "/comments",
 } as const;
 
 export const ROUTES = {
-  HOME: '/',
-  DASHBOARD: '/dashboard',
-  PROFILE: '/profile',
-  LOGIN: '/login',
+  HOME: "/",
+  DASHBOARD: "/dashboard",
+  PROFILE: "/profile",
+  LOGIN: "/login",
 } as const;
 ```
 
@@ -1132,18 +1157,18 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user' | 'guest';
+  role: "admin" | "user" | "guest";
 }
 
 // Type guard
 function isUser(obj: unknown): obj is User {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj !== null &&
-    'id' in obj &&
-    'name' in obj &&
-    'email' in obj &&
-    typeof (obj as User).id === 'string'
+    "id" in obj &&
+    "name" in obj &&
+    "email" in obj &&
+    typeof (obj as User).id === "string"
   );
 }
 ```
@@ -1152,10 +1177,10 @@ function isUser(obj: unknown): obj is User {
 
 ### Component Documentation
 
-```typescript
+````typescript
 /**
  * A reusable button component with multiple variants and sizes.
- * 
+ *
  * @component
  * @example
  * ```tsx
@@ -1166,9 +1191,9 @@ function isUser(obj: unknown): obj is User {
  */
 interface ButtonProps {
   /** The button's visual style variant */
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: "primary" | "secondary" | "danger";
   /** The size of the button */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   /** Click handler */
   onClick?: () => void;
   /** Whether the button is disabled */
@@ -1177,16 +1202,16 @@ interface ButtonProps {
   children: React.ReactNode;
 }
 
-export default function Button({ 
-  variant = 'primary',
-  size = 'md',
+export default function Button({
+  variant = "primary",
+  size = "md",
   onClick,
   disabled = false,
-  children 
+  children,
 }: ButtonProps) {
   // Implementation
 }
-```
+````
 
 ## Summary
 
@@ -1201,5 +1226,3 @@ This React project follows these core principles:
 7. **Best practices** - Performance, accessibility, and maintainability
 
 Follow these guidelines to maintain a consistent, type-safe, and maintainable React codebase.
-
-
