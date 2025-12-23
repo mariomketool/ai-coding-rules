@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to deploy AI rules to .cursorrules and GitHub Copilot instructions
+# Script to deploy AI rules to Cursor rules directory structure and legacy .cursorrules
 # Usage: ./deploy-rules.sh <filename> [filename2] [filename3] ...
 # Example: ./deploy-rules.sh nextjs
 # Example: ./deploy-rules.sh nextjs python
@@ -17,14 +17,36 @@ if [ -z "$1" ]; then
 fi
 
 DIST_DIR="dist"
+CURSOR_RULES_DIR="${DIST_DIR}/.cursor/rules"
 TEMP_FILE="${DIST_DIR}/temp_combined.md"
+
+# Function to extract description from markdown file (first heading)
+extract_description() {
+    local file="$1"
+    # Extract the first line that starts with # and remove the # prefix and any leading/trailing whitespace
+    local title=$(head -n 1 "$file" | sed 's/^# *//' | sed 's/ *$//')
+    if [ -z "$title" ]; then
+        # Fallback to filename if no title found
+        basename "$file" .md
+    else
+        echo "$title"
+    fi
+}
+
+# Function to escape YAML string (escape quotes and backslashes)
+escape_yaml_string() {
+    local str="$1"
+    # Escape backslashes first, then double quotes
+    echo "$str" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g'
+}
 
 # Clear and recreate dist directory
 echo "Clearing dist directory..."
 rm -rf "$DIST_DIR"
-mkdir -p "$DIST_DIR/.github"
+mkdir -p "$CURSOR_RULES_DIR"
+mkdir -p "${DIST_DIR}/.github"
 
-# Concatenate all source files
+# Process each rule file
 echo "Processing rule files..."
 FIRST_FILE=true
 for FILENAME in "$@"; do
@@ -37,29 +59,59 @@ for FILENAME in "$@"; do
         exit 1
     fi
     
-    # Add separator before all files except the first one
+    # Extract description from the first heading
+    DESCRIPTION=$(extract_description "$SOURCE_FILE")
+    ESCAPED_DESCRIPTION=$(escape_yaml_string "$DESCRIPTION")
+    
+    # Create rule directory
+    RULE_DIR="${CURSOR_RULES_DIR}/${FILENAME}"
+    mkdir -p "$RULE_DIR"
+    
+    # Create RULE.md with frontmatter and content
+    RULE_FILE="${RULE_DIR}/RULE.md"
+    
+    # Write frontmatter
+    cat > "$RULE_FILE" <<EOF
+---
+description: "$ESCAPED_DESCRIPTION"
+globs: []
+alwaysApply: true
+---
+
+EOF
+    
+    # Append the original content (skip the first line if it's a heading, or include it)
+    # We'll include all content as-is since the frontmatter is separate
+    cat "$SOURCE_FILE" >> "$RULE_FILE"
+    
+    echo "  ✓ Created rule: ${RULE_FILE}"
+    
+    # Also add to combined file for legacy .cursorrules support
     if [ "$FIRST_FILE" = true ]; then
         FIRST_FILE=false
         cat "$SOURCE_FILE" > "$TEMP_FILE"
-        echo "  ✓ Added: ${SOURCE_FILE}"
     else
         echo "" >> "$TEMP_FILE"
         echo "---" >> "$TEMP_FILE"
         echo "" >> "$TEMP_FILE"
         cat "$SOURCE_FILE" >> "$TEMP_FILE"
-        echo "  ✓ Added: ${SOURCE_FILE}"
     fi
 done
 
-# Deploy to .cursorrules
-echo "Deploying rules to ${DIST_DIR}/.cursorrules..."
+# Deploy to legacy .cursorrules (for backward compatibility)
+echo "Deploying legacy .cursorrules..."
 mv "$TEMP_FILE" "${DIST_DIR}/.cursorrules"
 
 # Deploy to GitHub Copilot instructions
 echo "Deploying rules to ${DIST_DIR}/.github/copilot-instructions.md..."
 cp "${DIST_DIR}/.cursorrules" "${DIST_DIR}/.github/copilot-instructions.md"
 
+echo ""
 echo "✓ Successfully deployed rules to:"
-echo "  - ${DIST_DIR}/.cursorrules"
+echo "  - ${CURSOR_RULES_DIR}/ (Cursor rules directory structure)"
+for FILENAME in "$@"; do
+    echo "    - ${FILENAME}/RULE.md"
+done
+echo "  - ${DIST_DIR}/.cursorrules (legacy format)"
 echo "  - ${DIST_DIR}/.github/copilot-instructions.md"
 
