@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to deploy AI rules to Cursor rules directory structure and legacy .cursorrules
+# Script to deploy AI rules to Cursor rules directory structure
 # Usage: ./deploy-rules.sh <filename> [filename2] [filename3] ...
 # Example: ./deploy-rules.sh nextjs
 # Example: ./deploy-rules.sh nextjs python
@@ -86,7 +86,7 @@ EOF
     
     echo "  ✓ Created rule: ${RULE_FILE}"
     
-    # Also add to combined file for legacy .cursorrules support
+    # Also add to combined file for GitHub Copilot instructions
     if [ "$FIRST_FILE" = true ]; then
         FIRST_FILE=false
         cat "$SOURCE_FILE" > "$TEMP_FILE"
@@ -98,13 +98,9 @@ EOF
     fi
 done
 
-# Deploy to legacy .cursorrules (for backward compatibility)
-echo "Deploying legacy .cursorrules..."
-mv "$TEMP_FILE" "${DIST_DIR}/.cursorrules"
-
 # Deploy to GitHub Copilot instructions
 echo "Deploying rules to ${DIST_DIR}/.github/copilot-instructions.md..."
-cp "${DIST_DIR}/.cursorrules" "${DIST_DIR}/.github/copilot-instructions.md"
+mv "$TEMP_FILE" "${DIST_DIR}/.github/copilot-instructions.md"
 
 echo ""
 echo "✓ Successfully deployed rules to:"
@@ -112,6 +108,5 @@ echo "  - ${CURSOR_RULES_DIR}/ (Cursor rules directory structure)"
 for FILENAME in "$@"; do
     echo "    - ${FILENAME}/RULE.md"
 done
-echo "  - ${DIST_DIR}/.cursorrules (legacy format)"
 echo "  - ${DIST_DIR}/.github/copilot-instructions.md"
 

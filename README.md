@@ -6,7 +6,7 @@ A collection of AI coding guidelines and best practices for various frameworks a
 
 This project maintains modular AI coding rules that can be combined and deployed to:
 
-- **Cursor IDE** (`.cursorrules` file)
+- **Cursor IDE** (`.cursor/rules/` directory structure)
 - **GitHub Copilot** (`.github/copilot-instructions.md`)
 
 ## Available Rules
@@ -32,7 +32,7 @@ Combine multiple rule files into a single deployment:
 
 This creates:
 
-- `dist/.cursorrules` - For Cursor IDE
+- `dist/.cursor/rules/` - For Cursor IDE (directory structure)
 - `dist/.github/copilot-instructions.md` - For GitHub Copilot
 
 ## Usage
@@ -45,9 +45,9 @@ This creates:
    ./deploy-rules.sh nextjs
    ```
 
-2. Copy the generated `.cursorrules` file to your project root:
+2. Copy the generated `.cursor` directory to your project root:
    ```bash
-   cp dist/.cursorrules /path/to/your/project/
+   cp -r dist/.cursor /path/to/your/project/
    ```
 
 ### For GitHub Copilot
@@ -71,7 +71,8 @@ ai-rules/
 │   ├── nextjs.md      # Next.js coding guidelines
 │   └── python.md      # Python coding guidelines
 ├── dist/              # Generated output (created by deploy script)
-│   ├── .cursorrules
+│   ├── .cursor/
+│   │   └── rules/     # Cursor IDE rules directory structure
 │   └── .github/
 │       └── copilot-instructions.md
 ├── deploy-rules.sh    # Deployment script
@@ -104,8 +105,9 @@ ai-rules/
 The `deploy-rules.sh` script:
 
 - Accepts one or more rule file names (without `.md` extension)
-- Concatenates multiple files with `---` separators
-- Creates both Cursor and GitHub Copilot compatible outputs
+- Creates Cursor IDE rules in `.cursor/rules/` directory structure
+- Concatenates multiple files with `---` separators for GitHub Copilot
+- Creates GitHub Copilot compatible output
 - Validates that all specified files exist
 - Clears and recreates the `dist/` directory on each run
 
